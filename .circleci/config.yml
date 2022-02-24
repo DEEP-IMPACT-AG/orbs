@@ -1,0 +1,41 @@
+version: 2.1
+
+executors:
+  cli:
+    docker:
+      - image: circleci/circleci-cli
+
+jobs:
+  validate_orbs:
+    executor: cli
+    steps:
+      - checkout
+      - run:
+          name: Validate orbs
+          command: NAMESPACE=artsy scripts/validate_orbs.sh
+
+  publish_orbs:
+    executor: cli
+    steps:
+      - checkout
+      - run:
+          name: Install slack notifier
+          command: |
+            curl --location --output ./slack \
+            https://github.com/cloudposse/slack-notifier/releases/download/0.2.0/slack-notifier_linux_amd64
+            chmod +x ./slack
+      - run:
+          name: Publish orbs
+          command: NAMESPACE=artsy scripts/publish_orbs.sh
+
+workflows:
+  build:
+    jobs:
+      - validate_orbs:
+          context: circleci-api
+          filters:
+            branches:
+              ignore:
+                - main
+      - publish_orbs:
+          context: circleci-api
