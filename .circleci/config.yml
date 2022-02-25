@@ -12,7 +12,7 @@ jobs:
       - checkout
       - run:
           name: Validate orbs
-          command: NAMESPACE=artsy scripts/validate_orbs.sh
+          command: NAMESPACE=DEEP-IMPACT-AG scripts/validate_orbs.sh
 
   publish_orbs:
     executor: cli
@@ -26,7 +26,7 @@ jobs:
             chmod +x ./slack
       - run:
           name: Publish orbs
-          command: NAMESPACE=artsy scripts/publish_orbs.sh
+          command: NAMESPACE=DEEP-IMPACT-AG scripts/publish_orbs.sh
 
 workflows:
   build:
