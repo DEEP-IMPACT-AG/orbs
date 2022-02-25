@@ -22,14 +22,14 @@ Inspiration taken from
 # Use the version in the comment at the top of node.yml instead.
 
 orbs:
-  skip-wip-ci: artsy/skip-wip-ci@volatile
+  skip-ci: deep-impact-ag/skip-wip-workflow-ci@volatile
 
 workflows:
   default:
     jobs:
-      - skip-wip-ci/check-skippable-ci
+      - skip-ci/skip-workflow-if-draft
       - test:
           <<: *not_staging_release
 ```
-skip-wip-workflow-ci will run in parallel to test and cancel the test job if criteria is met
+`skip-workflow-if-draft` will run in parallel to test and cancel the test job if criteria is met
 

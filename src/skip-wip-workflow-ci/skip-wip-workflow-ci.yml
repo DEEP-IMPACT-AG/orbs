@@ -1,4 +1,4 @@
-# Orb Version 0.0.1
+# Orb Version 0.0.2
 
 version: 2.1
 
@@ -30,7 +30,7 @@ commands:
             mergeable_state=$(printf "${github_response}" | jq '.mergeable_state')
             title=$(printf "${github_response}" | jq '.title' | tr '[:upper:]' '[:lower:]')
             draft=$(printf "${github_response}" | jq '.draft')
-            draft_label=$(printf $RESPONSE | jq ".labels | map(select(.name | test(\"Draft\"))) | .[]")
+            draft_label=$(printf "${github_response}" | jq ".labels | map(select(.name | test(\"Draft\"))) | .[]")
 
 
             cancel_running_jobs=0
