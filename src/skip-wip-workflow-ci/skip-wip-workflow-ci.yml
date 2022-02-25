@@ -24,7 +24,7 @@ commands:
               -H "Authorization: token $GITHUB_TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
               https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/pulls/$pr_number | \
-              jq '{mergeable_state: .mergeable_state, title: .title, draft: .draft, draft_labels: .labels}'
+              jq '{mergeable_state: .mergeable_state, title: .title, draft: .draft, labels: .labels}'
             )
 
             mergeable_state=$(printf "${github_response}" | jq '.mergeable_state')
