@@ -2,7 +2,7 @@
 ---
 Used to skip the CI workflows when the PR:
   - is a draft
-  - is labeled as draft
+  - is labeled as `Draft` (capital D)
   - contains one of the following in its title
     - "[wip]"
     - "[draft]"
