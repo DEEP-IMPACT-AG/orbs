@@ -1,4 +1,4 @@
-# Orb Version 0.0.3
+# Orb Version 0.0.4
 
 version: 2.1
 
@@ -53,7 +53,7 @@ commands:
             done
 
             if [[ "${cancel_running_jobs}" == 1 ]]; then
-              echo -n "Skipping CI. Attempting to cancel the workflow..."
+              echo -n "Skipping CI. Attempting to cancel the workflow N. ${CIRCLE_WORKFLOW_ID}..."
 
               curl -XPOST -sS \
                 -H "Circle-Token: ${CIRCLECI_TOKEN}" \
