@@ -18,7 +18,10 @@
             awscli2
             bash
             circleci-cli
+            curl
             direnv
+            git
+            jq
           ];
         };
       }

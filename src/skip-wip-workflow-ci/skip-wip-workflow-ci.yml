@@ -1,0 +1,71 @@
+version: 2.1
+
+description: Used to cancel CircleCI Workflow conditionally
+
+commands:
+  skip-workflow-if-draft:
+    steps:
+      - run: apk add --no-cache bash curl jq
+      - run:
+          shell: /bin/bash
+          name: Check skippable PR
+          command: |
+            set -euf -o pipefail
+
+            if [[ -z "$CIRCLE_PULL_REQUEST" ]]; then
+              echo "Not PR branch, skipping..."
+              exit 0
+            fi
+
+            pr_number=${CIRCLE_PULL_REQUEST//[!0-9]/}
+            github_response=$(curl --silent \
+              -H "Authorization: token $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github.v3+json" \
+              https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/pulls/$pr_number | \
+              jq '{mergeable_state: .mergeable_state, title: .title, draft: .draft, draft_labels: .labels}'
+            )
+
+            mergeable_state=$(printf "${github_response}" | jq '.mergeable_state')
+            title=$(printf "${github_response}" | jq '.title' | tr '[:upper:]' '[:lower:]')
+            draft=$(printf "${github_response}" | jq '.draft')
+            draft_label=$(printf $RESPONSE | jq ".labels | map(select(.name | test(\"Draft\"))) | .[]")
+
+
+            cancel_running_jobs=0
+
+            if [[ $draft == 'true' || "${mergeable_state}" == "\"draft\"" ]]; then
+              echo "The PR is a draft!"
+              cancel_running_jobs=1
+            fi
+
+            if [[ $draft_label ]]; then
+              echo "The PR is labelled as 'Draft'!"
+              cancel_running_jobs=1
+            fi
+
+            for skip_token in '[skip ci]' '[ci skip]' '[wip]' '[draft]'; do
+              if [[ ${title} == *"${skip_token}"* ]]; then
+                printf "Found \"${skip_token}\" in PR title!\n"
+                cancel_running_jobs=1
+              fi
+            done
+
+            if [[ "${cancel_running_jobs}" == 1 ]]; then
+              echo -n "Skipping CI. Attempting to cancel the workflow..."
+
+              curl -XPOST -sS \
+                -H "Circle-Token: ${CIRCLECI_TOKEN}" \
+                --url "https://circleci.com/api/v2/workflow/${CIRCLE_WORKFLOW_ID}/cancel"
+
+              echo "DONE!"
+            else
+              printf "No reason to skip CI, let's go!"
+            fi
+            exit 0
+
+jobs:
+  skip-workflow-if-draft:
+    docker:
+      - image: alpine:3.7
+    steps:
+      - skip-workflow-if-draft
