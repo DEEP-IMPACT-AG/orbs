@@ -39,3 +39,6 @@ workflows:
                 - main
       - publish_orbs:
           context: circleci-api
+          requires:
+            - validate_orbs
+
