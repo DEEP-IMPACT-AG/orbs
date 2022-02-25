@@ -56,7 +56,7 @@ commands:
               echo -n "Skipping CI. Attempting to cancel the workflow N. ${CIRCLE_WORKFLOW_ID}..."
 
               curl -XPOST -sS \
-                -H "Circle-Token: ${CIRCLECI_TOKEN}" \
+                -H "Circle-Token: ${CIRCLECI_API_KEY}" \
                 --url "https://circleci.com/api/v2/workflow/${CIRCLE_WORKFLOW_ID}/cancel"
 
               echo "DONE!"
