@@ -2,7 +2,9 @@
 
 version: 2.1
 
-description: Used to cancel CircleCI Workflow conditionally
+description: |
+  Used to cancel CircleCI Workflow conditionally
+  read more here - https://github.com/DEEP-IMPACT-AG/orbs
 
 commands:
   skip-workflow-if-draft:
