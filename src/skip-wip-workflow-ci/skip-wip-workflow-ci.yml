@@ -1,4 +1,4 @@
-# Orb Version 0.0.5
+# Orb Version 0.0.6
 
 version: 2.1
 
@@ -12,7 +12,7 @@ commands:
           shell: /bin/bash
           name: Check skippable PR
           command: |
-            set -euf -o pipefail
+            set -e -o pipefail
 
             if [[ -z "$CIRCLE_PULL_REQUEST" ]]; then
               echo "Not PR branch, skipping..."
