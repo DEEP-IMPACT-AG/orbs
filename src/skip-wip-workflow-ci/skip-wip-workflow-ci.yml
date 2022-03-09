@@ -1,4 +1,4 @@
-# Orb Version 0.0.6
+# Orb Version 0.0.7
 
 version: 2.1
 
@@ -23,16 +23,16 @@ commands:
 
             pr_number=${CIRCLE_PULL_REQUEST//[!0-9]/}
             github_response=$(curl --silent \
-              -H "Authorization: token $GITHUB_TOKEN" \
+              -H "Authorization: token ${GITHUB_TOKEN}" \
               -H "Accept: application/vnd.github.v3+json" \
-              https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/pulls/$pr_number | \
+              "https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls/${pr_number}" | \
               jq '{mergeable_state: .mergeable_state, title: .title, draft: .draft, labels: .labels}'
             )
 
-            mergeable_state=$(printf "${github_response}" | jq '.mergeable_state')
-            title=$(printf "${github_response}" | jq '.title' | tr '[:upper:]' '[:lower:]')
-            draft=$(printf "${github_response}" | jq '.draft')
-            draft_label=$(printf "${github_response}" | jq ".labels | map(select(.name | test(\"Draft\"))) | .[]")
+            mergeable_state=$(jq '.mergeable_state' <<< "${github_response}")
+            title=$(jq '.title' <<< "${github_response}" | tr '[:upper:]' '[:lower:]')
+            draft=$(jq '.draft' <<< "${github_response}")
+            draft_label=$(jq ".labels | map(select(.name | test(\"Draft\"))) | .[]" <<< "${github_response}")
 
 
             cancel_running_jobs=0
@@ -49,7 +49,7 @@ commands:
 
             for skip_token in '[skip ci]' '[ci skip]' '[wip]' '[draft]'; do
               if [[ ${title} == *"${skip_token}"* ]]; then
-                printf "Found \"${skip_token}\" in PR title!\n"
+                echo "Found \"${skip_token}\" in PR title!\n"
                 cancel_running_jobs=1
               fi
             done
@@ -63,7 +63,7 @@ commands:
 
               echo "DONE!"
             else
-              printf "No reason to skip CI, let's go!"
+              echo "No reason to skip CI, let's go!"
             fi
             exit 0
 
