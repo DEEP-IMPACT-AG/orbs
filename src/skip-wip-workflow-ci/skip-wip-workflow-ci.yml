@@ -29,10 +29,10 @@ commands:
               jq '{mergeable_state: .mergeable_state, title: .title, draft: .draft, labels: .labels}'
             )
 
-            mergeable_state=$(jq '.mergeable_state' <<< "${github_response}")
-            title=$(jq '.title' <<< "${github_response}" | tr '[:upper:]' '[:lower:]')
-            draft=$(jq '.draft' <<< "${github_response}")
-            draft_label=$(jq ".labels | map(select(.name | test(\"Draft\"))) | .[]" <<< "${github_response}")
+            mergeable_state=$(jq '.mergeable_state' \<<< "${github_response}")
+            title=$(jq '.title' \<<< "${github_response}" | tr '[:upper:]' '[:lower:]')
+            draft=$(jq '.draft' \<<< "${github_response}")
+            draft_label=$(jq ".labels | map(select(.name | test(\"Draft\"))) | .[]" \<<< "${github_response}")
 
 
             cancel_running_jobs=0
