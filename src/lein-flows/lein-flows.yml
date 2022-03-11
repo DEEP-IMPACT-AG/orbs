@@ -123,6 +123,7 @@ commands:
     description: run unit tests via `lein test`
     steps:
       - *restore_repository
+      - *restore_dependencies
       - run:
           command: lein test
           no_output_timeout: 5m
@@ -136,6 +137,7 @@ jobs:
     resource_class: xlarge
     steps:
       - *restore_repository
+      - *restore_dependencies
       - setup_remote_docker:
           reusable: true
       - run:
