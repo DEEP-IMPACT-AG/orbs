@@ -22,6 +22,7 @@
             direnv
             git
             jq
+            just
           ];
         };
       }
