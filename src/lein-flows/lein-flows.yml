@@ -1,4 +1,4 @@
-# Orb Version 0.0.3
+# Orb Version 0.0.4
 version: 2.1
 description: CLJ Leiningen Orb for DI. Credits to replicativ/clj-lein!
 
@@ -18,7 +18,6 @@ examples:
         build_test_and_deploy:
           jobs:
             - lein/setup
-            - lein/format
             - lein/test:
                 requires:
                   - lein/setup
@@ -51,21 +50,10 @@ references:
   repo_cache_key: &repo_cache_key
     source-v0-{{ arch }}-{{ .Branch }}-{{ .Revision }}
 
-  restore_repository: &restore_repository
-    restore_cache:
-      keys:
-        - *repo_cache_key
-        - source-v0-{{ arch }}-{{ .Branch }}-
-        - source-v0-{{ arch }}-
-
   deps_cache_key: &deps_cache_key
     deps-v0-{{ arch }}-{{ checksum "project.clj" }}
 
-  restore_dependencies: &restore_dependencies
-    restore_cache:
-      keys:
-        - *deps_cache_key
-        - deps-v0-{{ arch }}-
+
 
 
 executors:
@@ -102,16 +90,31 @@ commands:
 
   restore_repo:
     steps:
-      - *restore_repository
+      - restore_cache:
+          keys:
+            - *repo_cache_key
+            - source-v0-{{ arch }}-{{ .Branch }}-
+            - source-v0-{{ arch }}-
+
+  restore_deps:
+    steps:
+      - restore_cache:
+          keys:
+            - *deps_cache_key
+            - deps-v0-{{ arch }}-
+
+  checkout_cached:
+    steps:
+      - restore_repo
       - checkout
       - save_cache:
           key: *repo_cache_key
           paths:
             - .
 
-  restore_deps:
+  deps_cached:
     steps:
-      - *restore_dependencies
+      - restore_deps
       - run: lein deps
       - save_cache:
           key: *deps_cache_key
@@ -122,8 +125,8 @@ commands:
   test:
     description: run unit tests via `lein test`
     steps:
-      - *restore_repository
-      - *restore_dependencies
+      - restore_repo
+      - restore_deps
       - run:
           command: lein test
           no_output_timeout: 5m
@@ -131,13 +134,20 @@ commands:
           path: test-results
 
 jobs:
+  setup:
+    description: this sets up the workflow
+    executor: clojure-latest
+    steps:
+      - checkout_cached
+      - deps_cached
+
   build:
     description: build the artifact + the docker image
     executor: aws-cli-latest
     resource_class: xlarge
     steps:
-      - *restore_repository
-      - *restore_dependencies
+      - restore_repo
+      - restore_deps
       - setup_remote_docker:
           reusable: true
       - run:
@@ -157,7 +167,7 @@ jobs:
       Deploy the image we just built - on TEST
     executor: aws-cli-latest
     steps:
-      - *restore_repository
+      - restore_repo
       - run:
           command: |
             ./infra/deploy.sh test "${CIRCLE_TAG}"
@@ -168,7 +178,7 @@ jobs:
       Deploy the image we just built - on PROD
     executor: aws-cli-latest
     steps:
-      - *restore_repository
+      - restore_repo
       - run:
           command: |
             ./infra/deploy.sh prod "${CIRCLE_TAG}"
