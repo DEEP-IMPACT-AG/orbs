@@ -1,4 +1,4 @@
-# Orb Version 0.0.4
+# Orb Version 0.0.5
 version: 2.1
 description: CLJ Leiningen Orb for DI. Credits to replicativ/clj-lein!
 
@@ -53,9 +53,6 @@ references:
   deps_cache_key: &deps_cache_key
     deps-v0-{{ arch }}-{{ checksum "project.clj" }}
 
-
-
-
 executors:
   clojure-latest:
     description: Default leiningen executor for DI projects
@@ -64,7 +61,7 @@ executors:
 # docker 20.10.12, docker-compose-v1 version, dockerize v0.6.1,
 # git 2.34.1, java 17.0.2, jq 1.6, lein 2.9.8, ubuntu 20.04.3 LTS
 #
-# more at: https://circleci.com/developer/images/image/cimg/clojure
+# more info at: https://circleci.com/developer/images/image/cimg/clojure
         - image: cimg/clojure:1.10
     environment:
       JVM_OPTS: -Xmx3200m
