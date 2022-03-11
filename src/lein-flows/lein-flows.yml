@@ -1,0 +1,167 @@
+# Orb Version 0.0.1
+version: 2.1
+description: CLJ Leiningen Orb for DI. Credits to replicativ/clj-lein!
+
+display:
+  home_url: https://github.com/DEEP-IMPACT-AG
+  source_url: https://github.com/DEEP-IMPACT-AG/orbs
+examples:
+
+  workflow-full:
+    description: |
+      Example CI configuration for a service part of a spectra ecosystem
+    usage:
+      orbs:
+        lein: deep-impact-ag/lein-flows@0.0.1
+      version: 2.1
+      workflows:
+        build_test_and_deploy:
+          jobs:
+            - lein/setup
+            - lein/format
+            - lein/test:
+              requires:
+                - lein/setup
+            - lein/build:
+              requires:
+                - lein/setup
+            - lein/deploy-test:
+              filters:
+                branches:
+                  only: /^v\d{5}$/
+              requires:
+                - lein/setup
+                - lein/test
+                - lein/build
+            - lein/deploy-prod:
+                filters:
+                  branches:
+                    only: master
+                requires:
+                  - lein/setup
+                  - lein/test
+                  - lein/build
+
+references:
+  repo_cache_key: &repo_cache_key
+    source-v0-{{ arch }}-{{ .Branch }}-{{ .Revision }}
+
+  restore_repository: &restore_repository
+    restore_cache:
+      keys:
+        - *repo_cache_key
+        - source-v0-{{ arch }}-{{ .Branch }}-
+        - source-v0-{{ arch }}-
+
+  deps_cache_key: &deps_cache_key
+    deps-v0-{{ arch }}-{{ checksum "project.clj" }}
+
+  restore_dependencies: &restore_dependencies
+    restore_cache:
+      keys:
+        - *deps_cache_key
+        - deps-v0-{{ arch }}-
+
+
+executors:
+  clojure-latest:
+    description: Default leiningen executor for DI projects
+    docker:
+# build-essentials 12.8ubuntu1.1, curl 7.68.0, wget 1.20.3
+# docker 20.10.12, docker-compose-v1 version, dockerize v0.6.1,
+# git 2.34.1, java 17.0.2, jq 1.6, lein 2.9.8, ubuntu 20.04.3 LTS
+#
+# more at: https://circleci.com/developer/images/image/cimg/clojure
+        - image: cimg/clojure:1.10
+    environment:
+      JVM_OPTS: -Xmx3200m
+      LEIN_ROOT: true
+    working_directory: /di
+  aws-cli-latest:
+    description: this is for the AWS commands
+    docker:
+      - image: amazon/aws-cli:latest
+    working_directory: /di
+
+jobs:
+  install:
+    description: Install leiningen
+    steps:
+      - run: |
+        #!/usr/bin/env bash
+        wget https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein && \
+        chmod a+x lein && \
+        mv lein /bin/ && \
+        lein --version
+
+  restore_repo:
+    steps:
+      - *restore_repository
+      - checkout
+      - save_cache:
+          key: *repo_cache_key
+          paths:
+            - .
+
+  restore_deps:
+    steps:
+      - *restore_dependencies
+      - run: lein deps
+      - save_cache:
+        key: *deps_cache_key
+        paths:
+          - ~/.m2
+          - ~/.lein
+
+  test:
+    description: run unit tests via `lein test`
+    steps:
+      - *restore_repository
+      - run:
+          command: lein test
+          no_output_timeout: 5m
+      - store_test_results:
+          path: test-results
+
+  build:
+    description: build the artifact + the docker image
+    executor: aws-cli-latest
+    resource_class: xlarge
+    steps:
+      - *restore_repository
+      - setup_remote_docker:
+          reusable: true
+      - run:
+          name: docker image build
+          command: infra/build.sh
+      - run:
+          name: Log into Amazon ECR
+          command: |
+            aws ecr get-login-password | \
+              docker login --username AWS --password-stdin "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+      - run:
+          command: |
+            docker push "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/spectra/${CIRCLE_PROJECT_REPONAME}:${CIRCLE_TAG}"
+
+  deploy-test:
+    description: |
+      Deploy the image we just built - on TEST
+    executor: aws-cli-latest
+    steps:
+      - *restore_repository
+      - run:
+        command: |
+          ./infra/deploy.sh test "${CIRCLE_TAG}"
+        name: Run the docker image on AWS ECS Fargate
+
+  deploy-prod:
+    description: |
+      Deploy the image we just built - on PROD
+    executor: aws-cli-latest
+    steps:
+      - *restore_repository
+      - run:
+        command: |
+          ./infra/deploy.sh prod "${CIRCLE_TAG}"
+        name: Run the docker image on AWS ECS Fargate
+
