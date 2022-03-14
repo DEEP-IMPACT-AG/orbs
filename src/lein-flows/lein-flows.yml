@@ -1,4 +1,4 @@
-# Orb Version 0.1.1
+# Orb Version 0.1.2
 version: 2.1
 description: CLJ Leiningen Orb for DI. Credits to replicativ/clj-lein!
 
@@ -131,7 +131,7 @@ commands:
           deps_cache_key: <<parameters.deps_cache_key>>
       - run:
           working_directory: "~/di/<<parameters.lein_dir>>"
-          command: lein deps
+          command: pwd && lein deps
       - save_cache:
           key: <<parameters.deps_cache_key>>
           paths:
