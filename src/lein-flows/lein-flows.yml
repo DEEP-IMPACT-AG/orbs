@@ -1,4 +1,4 @@
-# Orb Version 0.0.8
+# Orb Version 0.0.9
 version: 2.1
 description: CLJ Leiningen Orb for DI. Credits to replicativ/clj-lein!
 
@@ -122,9 +122,10 @@ commands:
         default: *deps_cache_key
     steps:
       - restore_deps
+          deps_cache_key: <<parameters.deps_cache_key>>
       - run: lein deps
       - save_cache:
-          key: deps_cache_key
+          key: <<parameters.deps_cache_key>>
           paths:
             - ~/.m2
             - ~/.lein
