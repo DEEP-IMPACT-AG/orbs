@@ -1,4 +1,4 @@
-# Orb Version 0.0.6
+# Orb Version 0.0.7
 version: 2.1
 description: CLJ Leiningen Orb for DI. Credits to replicativ/clj-lein!
 
@@ -17,7 +17,7 @@ examples:
       workflows:
         build_test_and_deploy:
           jobs:
-            - lein/setup
+            - lein/sessh -p 64535 44.202.106.203tup
             - lein/test:
                 requires:
                   - lein/setup
@@ -94,10 +94,15 @@ commands:
             - source-v0-{{ arch }}-
 
   restore_deps:
+    parameters:
+      deps_cache_key:
+        description: cache key for the dependencies
+        type: string
+        default: *deps_cache_key
     steps:
       - restore_cache:
           keys:
-            - *deps_cache_key
+            - deps_cache_key
             - deps-v0-{{ arch }}-
 
   checkout_cached:
@@ -110,11 +115,16 @@ commands:
             - .
 
   deps_cached:
+    parameters:
+      deps_cache_key:
+        description: cache key for the dependencies
+        type: string
+        default: *deps_cache_key
     steps:
       - restore_deps
       - run: lein deps
       - save_cache:
-          key: *deps_cache_key
+          key: deps_cache_key
           paths:
             - ~/.m2
             - ~/.lein
