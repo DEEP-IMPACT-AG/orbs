@@ -1,4 +1,4 @@
-# Orb Version 0.1.5
+# Orb Version 0.1.6
 version: 2.1
 description: CLJ Leiningen Orb for DI. Credits to replicativ/clj-lein!
 
@@ -130,8 +130,8 @@ commands:
       - restore_deps:
           deps_cache_key: << parameters.deps_cache_key >>
       - run:
+          command: lein deps
           working_directory: ~/di/<< parameters.lein_dir >>
-          command: pwd && lein deps
       - save_cache:
           key: << parameters.deps_cache_key >>
           paths:
@@ -140,11 +140,19 @@ commands:
 
   test:
     description: run unit tests via `lein test`
+    parameters:
+      lein_dir:
+        description: |
+          The directory where our project.clj file lives,
+          relative to the project's main directory
+        type: string
+        default: .
     steps:
       - restore_repo
       - restore_deps
       - run:
           command: lein test
+          working_directory: ~/di/<< parameters.lein_dir >>
           no_output_timeout: 5m
       - store_test_results:
           path: test-results
