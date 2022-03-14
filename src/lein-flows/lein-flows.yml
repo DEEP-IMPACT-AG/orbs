@@ -1,4 +1,4 @@
-# Orb Version 0.1.2
+# Orb Version 0.1.3
 version: 2.1
 description: CLJ Leiningen Orb for DI. Credits to replicativ/clj-lein!
 
@@ -127,6 +127,7 @@ commands:
         type: string
         default: .
     steps:
+      - run: echo << parameters.lein_dir >>
       - restore_deps:
           deps_cache_key: << parameters.deps_cache_key >>
       - run:
@@ -166,6 +167,7 @@ jobs:
     executor: clojure-latest
     steps:
       - checkout_cached
+      - run: echo << parameters.lein_dir >>
       - deps_cached:
           deps_cache_key: << parameters.deps_cache_key >>
           lein_dir: << parameters.lein_dir >>
