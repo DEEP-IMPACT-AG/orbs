@@ -121,7 +121,7 @@ commands:
         type: string
         default: *deps_cache_key
     steps:
-      - restore_deps
+      - restore_deps:
           deps_cache_key: <<parameters.deps_cache_key>>
       - run: lein deps
       - save_cache:
