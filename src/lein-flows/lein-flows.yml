@@ -1,4 +1,4 @@
-# Orb Version 0.1.4
+# Orb Version 0.1.5
 version: 2.1
 description: CLJ Leiningen Orb for DI. Credits to replicativ/clj-lein!
 
@@ -82,7 +82,7 @@ commands:
             #!/usr/bin/env bash
             wget https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein
             chmod a+x lein
-            mv lein /bin/
+            sudo mv lein /bin/
             lein --version
 
   restore_repo:
