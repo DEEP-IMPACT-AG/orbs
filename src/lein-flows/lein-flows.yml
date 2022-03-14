@@ -167,8 +167,8 @@ jobs:
     steps:
       - checkout_cached
       - deps_cached:
-          deps_cache_key: deps_cache_key
-          lein_dir: lein_dir
+          deps_cache_key: <<parameters.deps_cache_key>>
+          lein_dir: <<parameters.lein_dir>>
 
   build:
     description: build the artifact + the docker image
