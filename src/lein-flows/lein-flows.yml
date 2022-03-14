@@ -1,4 +1,4 @@
-# Orb Version 0.0.7
+# Orb Version 0.0.8
 version: 2.1
 description: CLJ Leiningen Orb for DI. Credits to replicativ/clj-lein!
 
@@ -142,11 +142,17 @@ commands:
 
 jobs:
   setup:
+    parameters:
+      deps_cache_key:
+        description: cache key for the dependencies
+        type: string
+        default: *deps_cache_key
     description: this sets up the workflow
     executor: clojure-latest
     steps:
       - checkout_cached
-      - deps_cached
+      - deps_cached:
+          deps_cache_key: deps_cache_key
 
   build:
     description: build the artifact + the docker image
