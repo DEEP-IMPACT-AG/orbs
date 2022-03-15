@@ -1,0 +1,19 @@
+# Orb Version 0.0.1
+
+version: 2.1
+
+description: |
+  This orb contains various minor useful commands that do not fit
+  in the other orbs. In particular
+    - yum install
+
+commands:
+  yum-install:
+    parameters:
+      packages:
+        description: string containing a whitespace-separated list of packages to install.
+        type: string
+    steps:
+      - run: yum install -y << parameters.packages >>
+      - run: yum clean all && rm -rf /var/cache/yum
+
