@@ -1,4 +1,4 @@
-# Orb Version 0.1.9
+# Orb Version 0.2.0
 version: 2.1
 description: CLJ Leiningen Orb for DI. Credits to replicativ/clj-lein!
 
@@ -45,6 +45,8 @@ examples:
                   - lein/setup
                   - lein/test
                   - lein/build
+orbs:
+  utils: deep-impact-ag/utils@0.0.1
 
 references:
   repo_cache_key: &repo_cache_key
@@ -171,9 +173,6 @@ commands:
       - run:
           command: ./infra/deploy.sh << parameters.env >> "${CIRCLE_TAG}"
           name: Run the docker image on AWS ECS Fargate
-
-orbs:
-  utils: deep-impact-ag/utils@0.0.1
 
 jobs:
   setup:
