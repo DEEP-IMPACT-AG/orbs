@@ -1,4 +1,4 @@
-# Orb Version 0.2.1
+# Orb Version 0.2.2
 version: 2.1
 description: CLJ Leiningen Orb for DI. Credits to replicativ/clj-lein!
 
@@ -169,6 +169,8 @@ commands:
           The environment where the deployment should happen.
         type: string
     steps:
+      - utils/yum-install:
+          packages: tar gzip jq
       - restore_repo
       - run:
           command: ./infra/deploy.sh << parameters.env >> "${CIRCLE_TAG}"
@@ -201,7 +203,7 @@ jobs:
     resource_class: xlarge
     steps:
       - utils/yum-install:
-          packages: tar gzip
+          packages: tar gzip jq
       - restore_repo
       - restore_deps
       - setup_remote_docker:
