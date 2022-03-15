@@ -1,4 +1,4 @@
-# Orb Version 0.1.8
+# Orb Version 0.1.9
 version: 2.1
 description: CLJ Leiningen Orb for DI. Credits to replicativ/clj-lein!
 
@@ -66,12 +66,12 @@ executors:
     environment:
       JVM_OPTS: -Xmx3200m
       LEIN_ROOT: true
-    working_directory: ~/di
+    working_directory: /home/circleci/di
   aws-cli-latest:
     description: this is for the AWS commands
     docker:
       - image: amazon/aws-cli:latest
-    working_directory: ~/di
+    working_directory: /home/circleci/di
 
 commands:
   install:
@@ -131,12 +131,12 @@ commands:
           deps_cache_key: << parameters.deps_cache_key >>
       - run:
           command: lein deps
-          working_directory: ~/di/<< parameters.lein_dir >>
+          working_directory: /home/circleci/di/<< parameters.lein_dir >>
       - save_cache:
           key: << parameters.deps_cache_key >>
           paths:
-            - ~/.m2
-            - ~/.lein
+            - /home/circleci/.m2
+            - /home/circleci/.lein
 
   test:
     description: run unit tests via `lein test`
@@ -152,7 +152,7 @@ commands:
       - restore_deps
       - run:
           command: lein test
-          working_directory: ~/di/<< parameters.lein_dir >>
+          working_directory: /home/circleci/di/<< parameters.lein_dir >>
           no_output_timeout: 5m
       - store_test_results:
           path: test-results
