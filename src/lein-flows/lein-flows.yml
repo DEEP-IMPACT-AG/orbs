@@ -1,4 +1,4 @@
-# Orb Version 0.1.6
+# Orb Version 0.1.7
 version: 2.1
 description: CLJ Leiningen Orb for DI. Credits to replicativ/clj-lein!
 
@@ -157,6 +157,9 @@ commands:
       - store_test_results:
           path: test-results
 
+orbs:
+  utils: deep-impact-ag/utils@0.0.1
+
 jobs:
   setup:
     parameters:
@@ -183,6 +186,8 @@ jobs:
     executor: aws-cli-latest
     resource_class: xlarge
     steps:
+      - utils/yum-install:
+          packages: tar gzip
       - restore_repo
       - restore_deps
       - setup_remote_docker:
