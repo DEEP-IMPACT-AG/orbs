@@ -157,6 +157,21 @@ commands:
       - store_test_results:
           path: test-results
 
+  deploy:
+    description: |
+      Deploy the image we just built on AWS.
+      This means that AWS CLI is required for this command to run!
+    parameters:
+      env:
+        description: |
+          The environment where the deployment should happen.
+        type: string
+    steps:
+      - restore_repo
+      - run:
+          command: ./infra/deploy.sh << parameters.env >> "${CIRCLE_TAG}"
+          name: Run the docker image on AWS ECS Fargate
+
 orbs:
   utils: deep-impact-ag/utils@0.0.1
 
@@ -194,7 +209,7 @@ jobs:
           reusable: true
       - run:
           name: docker image build
-          command: infra/build.sh
+          command: infra/build.sh "${CIRCLE_TAG}"
       - run:
           name: Log into Amazon ECR
           command: |
@@ -205,24 +220,14 @@ jobs:
             docker push "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/spectra/${CIRCLE_PROJECT_REPONAME}:${CIRCLE_TAG}"
 
   deploy-test:
-    description: |
-      Deploy the image we just built - on TEST
     executor: aws-cli-latest
     steps:
-      - restore_repo
-      - run:
-          command: |
-            ./infra/deploy.sh test "${CIRCLE_TAG}"
-          name: Run the docker image on AWS ECS Fargate
+      - deploy:
+          env: test
 
   deploy-prod:
-    description: |
-      Deploy the image we just built - on PROD
     executor: aws-cli-latest
     steps:
-      - restore_repo
-      - run:
-          command: |
-            ./infra/deploy.sh prod "${CIRCLE_TAG}"
-          name: Run the docker image on AWS ECS Fargate
+      - deploy:
+          env: prod
 
