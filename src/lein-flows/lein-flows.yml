@@ -1,4 +1,4 @@
-# Orb Version 0.2.0
+# Orb Version 0.2.1
 version: 2.1
 description: CLJ Leiningen Orb for DI. Credits to replicativ/clj-lein!
 
@@ -208,7 +208,11 @@ jobs:
           reusable: true
       - run:
           name: docker image build
-          command: infra/build.sh "${CIRCLE_TAG}"
+          command: |
+            infra/build.sh \
+              $(if [[ -n "${CIRCLE_TAG}" ]]; \
+                then echo "${CIRCLE_TAG}"; \
+                else echo "${CIRCLE_BRANCH}"; fi)
       - run:
           name: Log into Amazon ECR
           command: |
