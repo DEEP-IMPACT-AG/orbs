@@ -1,4 +1,4 @@
-# Orb Version 0.2.3
+# Orb Version 0.2.4
 version: 2.1
 description: CLJ Leiningen Orb for DI. Credits to replicativ/clj-lein!
 
@@ -198,6 +198,11 @@ jobs:
           deps_cache_key: << parameters.deps_cache_key >>
           lein_dir: << parameters.lein_dir >>
 
+#basically, 'setup_remote_docker' connects the current container
+#to a VM that's able to run docker commands.
+#could be useful to do integration testing!
+#useful links:
+#  - https://circleci.com/docs/2.0/building-docker-images/
   build:
     description: build the artifact + the docker image
     executor: aws-cli-latest
@@ -210,6 +215,7 @@ jobs:
       - restore_deps
       - setup_remote_docker:
           docker_layer_caching: true
+          version: 20.10.11
       - run:
           name: docker image build
           command: |
