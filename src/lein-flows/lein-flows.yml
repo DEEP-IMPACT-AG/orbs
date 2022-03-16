@@ -1,4 +1,4 @@
-# Orb Version 0.2.4
+# Orb Version 0.2.5
 version: 2.1
 description: CLJ Leiningen Orb for DI. Credits to replicativ/clj-lein!
 
@@ -203,7 +203,7 @@ jobs:
 #could be useful to do integration testing!
 #useful links:
 #  - https://circleci.com/docs/2.0/building-docker-images/
-  build:
+  build_push:
     description: build the artifact + the docker image
     executor: aws-cli-latest
     resource_class: xlarge
@@ -217,20 +217,12 @@ jobs:
           docker_layer_caching: true
           version: 20.10.11
       - run:
-          name: docker image build
+          name: docker image build and push
           command: |
             infra/build.sh \
               $(if [[ -n "${CIRCLE_TAG}" ]]; \
                 then echo "${CIRCLE_TAG}"; \
                 else echo "${CIRCLE_BRANCH}"; fi)
-      - run:
-          name: Log into Amazon ECR
-          command: |
-            aws ecr get-login-password | \
-              docker login --username AWS --password-stdin "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-      - run:
-          command: |
-            docker push "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/spectra/${CIRCLE_PROJECT_REPONAME}:${CIRCLE_TAG}"
 
   deploy-test:
     executor: aws-cli-latest
