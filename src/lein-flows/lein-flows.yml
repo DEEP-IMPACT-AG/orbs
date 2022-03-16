@@ -1,4 +1,4 @@
-# Orb Version 0.2.5
+# Orb Version 0.2.6
 version: 2.1
 description: CLJ Leiningen Orb for DI. Credits to replicativ/clj-lein!
 
@@ -174,8 +174,12 @@ commands:
           packages: tar gzip jq
       - restore_repo
       - run:
-          command: ./infra/deploy.sh << parameters.env >> "${CIRCLE_TAG}"
           name: Run the docker image on AWS ECS Fargate
+          command: |
+            ./infra/deploy.sh << parameters.env >> \
+              $(if [[ -n "${CIRCLE_TAG}" ]]; \
+                then echo "${CIRCLE_TAG}"; \
+                else echo "${CIRCLE_BRANCH}"; fi)
 
 jobs:
   setup:
