@@ -1,4 +1,4 @@
-# Orb Version 0.2.2
+# Orb Version 0.2.3
 version: 2.1
 description: CLJ Leiningen Orb for DI. Credits to replicativ/clj-lein!
 
@@ -47,6 +47,7 @@ examples:
                   - lein/build
 orbs:
   utils: deep-impact-ag/utils@0.0.1
+  docker: circleci/docker@2.0.3
 
 references:
   repo_cache_key: &repo_cache_key
@@ -204,10 +205,11 @@ jobs:
     steps:
       - utils/yum-install:
           packages: tar gzip jq
+      - docker/install-docker
       - restore_repo
       - restore_deps
       - setup_remote_docker:
-          reusable: true
+          docker_layer_caching: true
       - run:
           name: docker image build
           command: |
