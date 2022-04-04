@@ -111,7 +111,10 @@ commands:
   checkout_cached:
     steps:
       - restore_repo
-      - checkout
+      - checkout:
+          post-steps:
+            - git submodule sync --recursive
+            - git submodule update --recursive --init
       - save_cache:
           key: *repo_cache_key
           paths:
