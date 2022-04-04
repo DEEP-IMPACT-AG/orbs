@@ -1,4 +1,4 @@
-# Orb Version 0.2.9
+# Orb Version 0.3.0
 version: 2.1
 description: CLJ Leiningen Orb for DI. Credits to replicativ/clj-lein!
 
@@ -51,7 +51,7 @@ orbs:
 
 references:
   repo_cache_key: &repo_cache_key
-    source-v1-{{ arch }}-{{ .Branch }}-{{ .Revision }}
+    source-v0-{{ arch }}-{{ .Branch }}-{{ .Revision }}
 
   deps_cache_key: &deps_cache_key
     deps-v0-{{ arch }}-{{ checksum "project.clj" }}
@@ -191,6 +191,10 @@ jobs:
         description: cache key for the dependencies
         type: string
         default: *deps_cache_key
+      repo_cache_key:
+        description: cache key for the repository itself
+        type: string
+        default: *repo_cache_key
       lein_dir:
         description: |
           The directory where our project.clj file lives,
