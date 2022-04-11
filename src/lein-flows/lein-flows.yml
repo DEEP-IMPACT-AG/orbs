@@ -1,4 +1,4 @@
-# Orb Version 0.3.1
+# Orb Version 0.3.2
 version: 2.1
 description: CLJ Leiningen Orb for DI. Credits to replicativ/clj-lein!
 
@@ -89,10 +89,15 @@ commands:
             lein --version
 
   restore_repo:
+    parameters:
+      repo_cache_key:
+        description: cache key for the dependencies
+        type: string
+        default: *repo_cache_key
     steps:
       - restore_cache:
           keys:
-            - *repo_cache_key
+            - repo_cache_key
             - source-v0-{{ arch }}-{{ .Branch }}-
             - source-v0-{{ arch }}-
 
@@ -109,8 +114,14 @@ commands:
             - deps-v0-{{ arch }}-
 
   checkout_cached:
+    parameters:
+      repo_cache_key:
+        description: cache key for the dependencies
+        type: string
+        default: *repo_cache_key
     steps:
-      - restore_repo
+      - restore_repo:
+          repo_cache_key: << parameters.repo_cache_key >>
       - checkout:
           post-steps:
             - git submodule sync --recursive
@@ -147,6 +158,14 @@ commands:
   test:
     description: run unit tests via `lein test`
     parameters:
+      deps_cache_key:
+        description: cache key for the dependencies
+        type: string
+        default: *deps_cache_key
+      repo_cache_key:
+        description: cache key for the repository itself
+        type: string
+        default: *repo_cache_key
       lein_dir:
         description: |
           The directory where our project.clj file lives,
@@ -154,8 +173,10 @@ commands:
         type: string
         default: .
     steps:
-      - restore_repo
-      - restore_deps
+      - restore_repo:
+          repo_cache_key: << parameters.repo_cache_key >>
+      - restore_deps:
+          deps_cache_key: << parameters.deps_cache_key >>
       - run:
           command: pwd && lein test
           working_directory: /home/circleci/di/<< parameters.lein_dir >>
@@ -168,6 +189,10 @@ commands:
       Deploy the image we just built on AWS.
       This means that AWS CLI is required for this command to run!
     parameters:
+      repo_cache_key:
+        description: cache key for the repository itself
+        type: string
+        default: *repo_cache_key
       env:
         description: |
           The environment where the deployment should happen.
@@ -175,7 +200,8 @@ commands:
     steps:
       - utils/yum-install:
           packages: tar gzip jq
-      - restore_repo
+      - restore_repo:
+          repo_cache_key: << parameters.repo_cache_key >>
       - run:
           name: Run the docker image on AWS ECS Fargate
           command: |
@@ -215,6 +241,15 @@ jobs:
 #useful links:
 #  - https://circleci.com/docs/2.0/building-docker-images/
   build_push:
+    parameters:
+      deps_cache_key:
+        description: cache key for the dependencies
+        type: string
+        default: *deps_cache_key
+      repo_cache_key:
+        description: cache key for the repository itself
+        type: string
+        default: *repo_cache_key
     description: build the artifact + the docker image
     executor: aws-cli-latest
     resource_class: xlarge
@@ -222,8 +257,10 @@ jobs:
       - utils/yum-install:
           packages: tar gzip jq
       - docker/install-docker
-      - restore_repo
-      - restore_deps
+      - restore_repo:
+          repo_cache_key: << parameters.repo_cache_key >>
+      - restore_deps:
+          deps_cache_key: << parameters.deps_cache_key >>
       - setup_remote_docker:
           docker_layer_caching: true
           version: 20.10.11
