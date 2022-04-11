@@ -1,4 +1,4 @@
-# Orb Version 0.3.5
+# Orb Version 0.3.6
 version: 2.1
 description: CLJ Leiningen Orb for DI. Credits to replicativ/clj-lein!
 
@@ -173,10 +173,11 @@ commands:
         type: string
         default: .
     steps:
-      - restore_repo:
+      - checkout_cached:
           repo_cache_key: << parameters.repo_cache_key >>
-      - restore_deps:
+      - deps_cached:
           deps_cache_key: << parameters.deps_cache_key >>
+          lein_dir: << parameters.lein_dir >>
       - run:
           command: pwd && lein test
           working_directory: /home/circleci/di/<< parameters.lein_dir >>
@@ -209,29 +210,6 @@ commands:
               $(if [[ -n "${CIRCLE_TAG}" ]]; \
                 then echo "${CIRCLE_TAG}"; \
                 else echo "${CIRCLE_BRANCH}"; fi)
-
-  setup:
-    parameters:
-      deps_cache_key:
-        description: cache key for the dependencies
-        type: string
-        default: *deps_cache_key
-      repo_cache_key:
-        description: cache key for the repository itself
-        type: string
-        default: *repo_cache_key
-      lein_dir:
-        description: |
-          The directory where our project.clj file lives,
-          relative to the project's main directory
-        type: string
-        default: .
-    steps:
-      - checkout_cached:
-          repo_cache_key: << parameters.repo_cache_key >>
-      - deps_cached:
-          deps_cache_key: << parameters.deps_cache_key >>
-          lein_dir: << parameters.lein_dir >>
 
 jobs:
 #basically, 'setup_remote_docker' connects the current container
