@@ -1,4 +1,4 @@
-# Orb Version 0.3.6
+# Orb Version 0.3.7
 version: 2.1
 description: CLJ Leiningen Orb for DI. Credits to replicativ/clj-lein!
 
@@ -26,11 +26,11 @@ examples:
                   - lein/setup
                 filters:
                   branches:
-                    only: /^v\d{5}$/
+                    only: /^v\d{6}$/
             - lein/deploy-test:
                 filters:
                   branches:
-                    only: /^v\d{5}$/
+                    only: /^v\d{6}$/
                 requires:
                   - lein/setup
                   - lein/test
@@ -40,7 +40,7 @@ examples:
                   branches:
                     only: master
                   tags:
-                    only: /^v\d{5}$/
+                    only: /^v\d{6}$/
                 requires:
                   - lein/setup
                   - lein/test
