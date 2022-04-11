@@ -1,4 +1,4 @@
-# Orb Version 0.3.4
+# Orb Version 0.3.5
 version: 2.1
 description: CLJ Leiningen Orb for DI. Credits to replicativ/clj-lein!
 
@@ -210,7 +210,6 @@ commands:
                 then echo "${CIRCLE_TAG}"; \
                 else echo "${CIRCLE_BRANCH}"; fi)
 
-jobs:
   setup:
     parameters:
       deps_cache_key:
@@ -227,14 +226,14 @@ jobs:
           relative to the project's main directory
         type: string
         default: .
-    description: this sets up the workflow
-    executor: clojure-latest
     steps:
-      - checkout_cached
+      - checkout_cached:
+          repo_cache_key: << parameters.repo_cache_key >>
       - deps_cached:
           deps_cache_key: << parameters.deps_cache_key >>
           lein_dir: << parameters.lein_dir >>
 
+jobs:
 #basically, 'setup_remote_docker' connects the current container
 #to a VM that's able to run docker commands.
 #could be useful to do integration testing!
