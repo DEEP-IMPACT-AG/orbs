@@ -127,7 +127,7 @@ commands:
             - git submodule sync --recursive
             - git submodule update --recursive --init
       - save_cache:
-          key: *repo_cache_key
+          key: << parameters.repo_cache_key >>
           paths:
             - .
 
