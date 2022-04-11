@@ -1,4 +1,4 @@
-# Orb Version 0.3.2
+# Orb Version 0.3.3
 version: 2.1
 description: CLJ Leiningen Orb for DI. Credits to replicativ/clj-lein!
 
@@ -97,7 +97,7 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - repo_cache_key
+            - << parameters.repo_cache_key >>
             - source-v0-{{ arch }}-{{ .Branch }}-
             - source-v0-{{ arch }}-
 
@@ -110,7 +110,7 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - deps_cache_key
+            - << parameters.deps_cache_key >>
             - deps-v0-{{ arch }}-
 
   checkout_cached:
